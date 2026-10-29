@@ -21,10 +21,13 @@ PROJECTS = [
         "link": "#",
     },
     {
+          {
         "title": "Weather Dashboard",
         "description": "Live weather cards powered by a public API.",
         "tags": ["Python", "API", "CSS"],
-        "link": "#",
+        "link": "/weather",  # 🛠️ Change this from "#" to "/weather"
+    },
+
     },
     {
         "title": "Quiz Game",
@@ -99,6 +102,42 @@ def messages():
         "SELECT * FROM messages ORDER BY id DESC"
     ).fetchall()
     return render_template("messages.html", messages=rows)
+
+import urllib.request
+import json
+
+@app.route("/weather", methods=["GET", "POST"])
+def weather():
+    weather_data = None
+    city = "Accra"  # Default city
+    
+    if request.method == "POST":
+        city = request.form.get("city", "").strip() or "Accra"
+        
+    try:
+        # We safely encode the city name for the URL query string
+        safe_city = urllib.parse.quote(city)
+        # Using a reliable json endpoint from wttr.in
+        url = f"https://wttr.in{safe_city}?format=j1"
+        
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=5) as response:
+            data = json.loads(response.read().decode())
+            
+            # Extracting the core live values out of the response
+            current = data['current_condition'][0]
+            weather_data = {
+                "city": data['nearest_area'][0]['areaName'][0]['value'],
+                "country": data['nearest_area'][0]['country'][0]['value'],
+                "temp": current['temp_C'],
+                "desc": current['weatherDesc'][0]['value'],
+                "humidity": current['humidity'],
+                "wind": current['windspeedKmph']
+            }
+    except Exception as e:
+        flash("Could not look up weather for that location. Please try another city.", "error")
+
+    return render_template("weather.html", weather=weather_data)
 
 
 # 🛠️ FIX: Removed the global init_db() call from here to stop the Vercel timeout block.
