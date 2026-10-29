@@ -1,12 +1,15 @@
 import os
 import sqlite3
+import json
+import urllib.request
+import urllib.parse
 from datetime import datetime
 from flask import Flask, flash, g, redirect, render_template, request, url_for
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "change-me-before-deploying")
 
-# 🛠️ FIX: Vercel serverless environments only allow file writing inside the /tmp directory
+# 🛠️ FIX 1: Vercel serverless environments only allow file writing inside the /tmp directory
 if os.environ.get("VERCEL"):
     DATABASE = "/tmp/messages.db"
 else:
@@ -21,13 +24,10 @@ PROJECTS = [
         "link": "#",
     },
     {
-          {
         "title": "Weather Dashboard",
         "description": "Live weather cards powered by a public API.",
         "tags": ["Python", "API", "CSS"],
-        "link": "/weather",  # 🛠️ Change this from "#" to "/weather"
-    },
-
+        "link": "/weather",  # Linked to our functional route
     },
     {
         "title": "Quiz Game",
@@ -41,7 +41,7 @@ SKILLS = ["Python", "Flask", "HTML", "CSS", "SQLite", "Git"]
 
 
 def init_db(db):
-    """Creates the database schema safely inside the database connection."""
+    """Creates the database schema safely inside the active database connection."""
     db.execute(
         """CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,7 +58,7 @@ def get_db():
     if "db" not in g:
         g.db = sqlite3.connect(DATABASE)
         g.db.row_factory = sqlite3.Row
-        # 🛠️ FIX: Initialize the table inside /tmp right after connecting
+        # 🛠️ FIX 2: Initialize the table inside /tmp dynamically right after connecting
         init_db(g.db)
     return g.db
 
@@ -72,7 +72,8 @@ def close_db(exception=None):
 
 @app.route("/")
 def index():
-    return render_template("index.html", projects=PROJECTS, skills=SKILLS)
+    # 🛠️ FIX 3: Replaced 'index.html' with your actual 'home.html' layout file name
+    return render_template("home.html", projects=PROJECTS, skills=SKILLS)
 
 
 @app.route("/contact", methods=["POST"])
@@ -103,8 +104,6 @@ def messages():
     ).fetchall()
     return render_template("messages.html", messages=rows)
 
-import urllib.request
-import json
 
 @app.route("/weather", methods=["GET", "POST"])
 def weather():
@@ -115,16 +114,12 @@ def weather():
         city = request.form.get("city", "").strip() or "Accra"
         
     try:
-        # We safely encode the city name for the URL query string
         safe_city = urllib.parse.quote(city)
-        # Using a reliable json endpoint from wttr.in
         url = f"https://wttr.in{safe_city}?format=j1"
         
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
         with urllib.request.urlopen(req, timeout=5) as response:
             data = json.loads(response.read().decode())
-            
-            # Extracting the core live values out of the response
             current = data['current_condition'][0]
             weather_data = {
                 "city": data['nearest_area'][0]['areaName'][0]['value'],
@@ -140,7 +135,7 @@ def weather():
     return render_template("weather.html", weather=weather_data)
 
 
-# 🛠️ FIX: Removed the global init_db() call from here to stop the Vercel timeout block.
+# 🛠️ FIX 4: Removed global init_db() call. The app execution flow is now totally clean.
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
