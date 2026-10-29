@@ -1,12 +1,16 @@
 import os
 import sqlite3
 from datetime import datetime
-
 from flask import Flask, flash, g, redirect, render_template, request, url_for
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "change-me-before-deploying")
-DATABASE = os.path.join(os.path.dirname(__file__), "messages.db")
+
+# 🛠️ FIX: Vercel serverless environments only allow file writing inside the /tmp directory
+if os.environ.get("VERCEL"):
+    DATABASE = "/tmp/messages.db"
+else:
+    DATABASE = os.path.join(os.path.dirname(__file__), "messages.db")
 
 # Edit this list to show your own work.
 PROJECTS = [
@@ -33,10 +37,26 @@ PROJECTS = [
 SKILLS = ["Python", "Flask", "HTML", "CSS", "SQLite", "Git"]
 
 
+def init_db(db):
+    """Creates the database schema safely inside the database connection."""
+    db.execute(
+        """CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            message TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )"""
+    )
+    db.commit()
+
+
 def get_db():
     if "db" not in g:
         g.db = sqlite3.connect(DATABASE)
         g.db.row_factory = sqlite3.Row
+        # 🛠️ FIX: Initialize the table inside /tmp right after connecting
+        init_db(g.db)
     return g.db
 
 
@@ -45,19 +65,6 @@ def close_db(exception=None):
     db = g.pop("db", None)
     if db is not None:
         db.close()
-
-
-def init_db():
-    with sqlite3.connect(DATABASE) as db:
-        db.execute(
-            """CREATE TABLE IF NOT EXISTS messages (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                email TEXT NOT NULL,
-                message TEXT NOT NULL,
-                created_at TEXT NOT NULL
-            )"""
-        )
 
 
 @app.route("/")
@@ -94,7 +101,7 @@ def messages():
     return render_template("messages.html", messages=rows)
 
 
-init_db()
+# 🛠️ FIX: Removed the global init_db() call from here to stop the Vercel timeout block.
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
