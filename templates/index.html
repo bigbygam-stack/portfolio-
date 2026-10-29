@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">Hi, I'm</p>
+  <h1>Your Name</h1>
+  <p class="lead">I build small, useful web apps with Python, HTML and CSS.</p>
+  <a class="btn" href="#projects">See my work</a>
+</section>
+
+<section id="about" class="section">
+  <h2>About me</h2>
+  <p>
+    Write a short paragraph about yourself here: what you enjoy building,
+    what you're learning, and what you're looking for.
+  </p>
+  <ul class="skills">
+    {% for skill in skills %}
+      <li>{{ skill }}</li>
+    {% endfor %}
+  </ul>
+</section>
+
+<section id="projects" class="section">
+  <h2>Projects</h2>
+  <div class="grid">
+    {% for p in projects %}
+      <article class="card">
+        <h3>{{ p.title }}</h3>
+        <p>{{ p.description }}</p>
+        <div class="tags">
+          {% for tag in p.tags %}<span>{{ tag }}</span>{% endfor %}
+        </div>
+        <a class="link" href="{{ p.link }}">View project &rarr;</a>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="contact" class="section">
+  <h2>Get in touch</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, text in messages %}
+      <div class="flash {{ category }}">{{ text }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form class="form" method="post" action="{{ url_for('contact') }}">
+    <label>Name
+      <input type="text" name="name" required>
+    </label>
+    <label>Email
+      <input type="email" name="email" required>
+    </label>
+    <label>Message
+      <textarea name="message" rows="5" required></textarea>
+    </label>
+    <button class="btn" type="submit">Send message</button>
+  </form>
+</section>
+{% endblock %}
