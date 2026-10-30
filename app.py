@@ -111,6 +111,41 @@ def fetch_json(url):
 
 
 @app.route("/weather", methods=["GET", "POST"])
+def uv_label(v):
+    if v < 3: return "Low"
+    if v < 6: return "Moderate"
+    if v < 8: return "High"
+    if v < 11: return "Very high"
+    return "Extreme"
+
+
+def humidity_label(h):
+    if h < 30: return "Low"
+    if h <= 60: return "Normal"
+    return "High"
+
+
+def visibility_label(km):
+    if km >= 10: return "Good"
+    if km >= 4: return "Average"
+    return "Poor"
+
+
+def aqi_label(a):
+    if a <= 50: return "Good"
+    if a <= 100: return "Moderate"
+    if a <= 150: return "Unhealthy for some"
+    if a <= 200: return "Unhealthy"
+    if a <= 300: return "Very unhealthy"
+    return "Hazardous"
+
+
+def clock(iso_text):
+    # "2026-10-30T17:42" -> "5:42 PM"
+    return datetime.fromisoformat(iso_text).strftime("%I:%M %p").lstrip("0")
+
+
+@app.route("/weather", methods=["GET", "POST"])
 def weather():
     weather_data = None
     city = "Accra"
@@ -119,34 +154,92 @@ def weather():
         city = request.form.get("city", "").strip() or "Accra"
 
     try:
-        # Step 1: turn the city name into coordinates
-        geo_url = (
+        # Step 1: city name -> coordinates
+        geo = fetch_json(
             "https://geocoding-api.open-meteo.com/v1/search?name="
-            + urllib.parse.quote(city)
-            + "&count=1"
+            + urllib.parse.quote(city) + "&count=1"
         )
-        geo = fetch_json(geo_url)
 
         if not geo.get("results"):
             flash("City not found. Please check the spelling and try again.", "error")
         else:
             place = geo["results"][0]
+            lat, lon = place["latitude"], place["longitude"]
 
-            # Step 2: get the current weather for those coordinates
-            weather_url = (
+            # Step 2: current conditions, today's hourly temps, and daily info
+            data = fetch_json(
                 "https://api.open-meteo.com/v1/forecast"
-                f"?latitude={place['latitude']}&longitude={place['longitude']}"
-                "&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code"
+                f"?latitude={lat}&longitude={lon}"
+                "&current=temperature_2m,relative_humidity_2m,wind_speed_10m,"
+                "weather_code,visibility,uv_index"
+                "&hourly=temperature_2m"
+                "&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max"
+                "&timezone=auto&forecast_days=1"
             )
-            current = fetch_json(weather_url)["current"]
+            current = data["current"]
+            daily = data["daily"]
+
+            # Hourly bars: every 3 hours across today
+            times = data["hourly"]["time"]
+            temps = data["hourly"]["temperature_2m"]
+            picked = [(times[i], temps[i]) for i in range(0, 24, 3)]
+            low_t = min(t for _, t in picked)
+            high_t = max(t for _, t in picked)
+            spread = (high_t - low_t) or 1
+            hours = [
+                {
+                    "label": datetime.fromisoformat(t).strftime("%I %p").lstrip("0"),
+                    "temp": round(v),
+                    "height": round(25 + 75 * (v - low_t) / spread),
+                }
+                for t, v in picked
+            ]
+
+            # Air quality is a separate API, so a failure here won't break the page
+            aqi = None
+            try:
+                air = fetch_json(
+                    "https://air-quality-api.open-meteo.com/v1/air-quality"
+                    f"?latitude={lat}&longitude={lon}&current=us_aqi"
+                )
+                aqi = air["current"].get("us_aqi")
+            except Exception as e:
+                print(f"Air quality error: {e}")
+
+            temp = round(current["temperature_2m"])
+            uv = current.get("uv_index")
+            if uv is None:
+                uv = daily["uv_index_max"][0]
+            uv = round(uv)
+            vis_km = round((current.get("visibility") or 0) / 1000, 1)
+            humidity = current["relative_humidity_2m"]
+            wind = round(current["wind_speed_10m"], 1)
 
             weather_data = {
                 "city": place.get("name", city),
                 "country": place.get("country", ""),
-                "temp": round(current["temperature_2m"]),
+                "temp": temp,
                 "desc": WEATHER_CODES.get(current["weather_code"], "Unknown"),
-                "humidity": current["relative_humidity_2m"],
-                "wind": round(current["wind_speed_10m"]),
+                "day_time": datetime.fromisoformat(current["time"]).strftime("%A, %H:%M"),
+                "gauge": max(0, min(1, (temp + 20) / 70)),  # -20C to 50C
+                "high": round(daily["temperature_2m_max"][0]),
+                "low": round(daily["temperature_2m_min"][0]),
+                "sunrise": clock(daily["sunrise"][0]),
+                "sunset": clock(daily["sunset"][0]),
+                "hours": hours,
+                "uv": uv,
+                "uv_label": uv_label(uv),
+                "uv_pct": min(100, round(uv / 12 * 100)),
+                "wind": wind,
+                "wind_pct": min(100, round(wind / 60 * 100)),
+                "humidity": humidity,
+                "humidity_label": humidity_label(humidity),
+                "visibility": vis_km,
+                "visibility_label": visibility_label(vis_km),
+                "visibility_pct": min(100, round(vis_km / 20 * 100)),
+                "aqi": aqi,
+                "aqi_label": aqi_label(aqi) if aqi is not None else "Unavailable",
+                "aqi_pct": min(100, round((aqi or 0) / 300 * 100)),
             }
 
     except Exception as e:
