@@ -110,7 +110,6 @@ def fetch_json(url):
         return json.loads(response.read().decode("utf-8"))
 
 
-@app.route("/weather", methods=["GET", "POST"])
 def uv_label(v):
     if v < 3: return "Low"
     if v < 6: return "Moderate"
