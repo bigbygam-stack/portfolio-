@@ -100,6 +100,7 @@ def messages():
     return render_template("messages.html", messages=rows)
 
 @app.route("/weather", methods=["GET", "POST"])
+@app.route("/weather", methods=["GET", "POST"])
 def weather():
     weather_data = None
     city = "Accra"
@@ -108,7 +109,6 @@ def weather():
         city = request.form.get("city", "").strip() or "Accra"
         
     try:
-        # Clear out extreme spaces and map the parameters safely
         safe_city = urllib.parse.quote(city.strip())
         url = f"https://wttr.in{safe_city}?format=j1"
         
@@ -121,12 +121,11 @@ def weather():
             raw_json = response.read().decode('utf-8')
             data = json.loads(raw_json)
             
-            # Defensive checks to ensure arrays exist
-            if 'current_condition' in data and 'nearest_area' in data:
+            # 🛠️ FIX: Safely verify arrays exist and extract the first dictionary index [0]
+            if 'current_condition' in data and len(data['current_condition']) > 0 and 'nearest_area' in data and len(data['nearest_area']) > 0:
                 current = data['current_condition'][0]
                 nearest = data['nearest_area'][0]
                 
-                # Safely extract dictionary keys with fallback defaults
                 weather_data = {
                     "city": nearest.get('areaName', [{}])[0].get('value', city),
                     "country": nearest.get('country', [{}])[0].get('value', ''),
@@ -139,7 +138,6 @@ def weather():
                 flash("Location data structure format not recognized.", "error")
                 
     except Exception as e:
-        # This print writes the exact raw error into your Vercel server dashboard logs!
         print(f"DEPLOYMENT DIAGNOSTIC ENGINE LOG: {str(e)}")
         flash("Weather service temporarily unavailable. Please verify the city spelling and try again.", "error")
         weather_data = None
