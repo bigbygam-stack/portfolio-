@@ -94,53 +94,64 @@ def contact():
     return redirect(url_for("index") + "#contact")
 
 
-@app.route("/messages")
-def messages():
-    rows = get_db().execute("SELECT * FROM messages ORDER BY id DESC").fetchall()
-    return render_template("messages.html", messages=rows)
+WEATHER_CODES = {
+    0: "Clear sky", 1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast",
+    45: "Fog", 48: "Fog", 51: "Light drizzle", 53: "Drizzle", 55: "Heavy drizzle",
+    61: "Light rain", 63: "Rain", 65: "Heavy rain",
+    71: "Light snow", 73: "Snow", 75: "Heavy snow",
+    80: "Rain showers", 81: "Rain showers", 82: "Violent rain showers",
+    95: "Thunderstorm", 96: "Thunderstorm with hail", 99: "Thunderstorm with hail",
+}
 
-@app.route("/weather", methods=["GET", "POST"])
+
+def fetch_json(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "portfolio-weather/1.0"})
+    with urllib.request.urlopen(req, timeout=10) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
 @app.route("/weather", methods=["GET", "POST"])
 def weather():
     weather_data = None
     city = "Accra"
-    
+
     if request.method == "POST":
         city = request.form.get("city", "").strip() or "Accra"
-        
+
     try:
-        safe_city = urllib.parse.quote(city.strip())
-        url = f"https://wttr.in{safe_city}?format=j1"
-        
-        req = urllib.request.Request(
-            url, 
-            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        # Step 1: turn the city name into coordinates
+        geo_url = (
+            "https://geocoding-api.open-meteo.com/v1/search?name="
+            + urllib.parse.quote(city)
+            + "&count=1"
         )
-        
-        with urllib.request.urlopen(req, timeout=10) as response:
-            raw_json = response.read().decode('utf-8')
-            data = json.loads(raw_json)
-            
-            # 🛠️ FIX: Safely verify arrays exist and extract the first dictionary index [0]
-            if 'current_condition' in data and len(data['current_condition']) > 0 and 'nearest_area' in data and len(data['nearest_area']) > 0:
-                current = data['current_condition'][0]
-                nearest = data['nearest_area'][0]
-                
-                weather_data = {
-                    "city": nearest.get('areaName', [{}])[0].get('value', city),
-                    "country": nearest.get('country', [{}])[0].get('value', ''),
-                    "temp": current.get('temp_C', 'N/A'),
-                    "desc": current.get('weatherDesc', [{}])[0].get('value', 'Unknown'),
-                    "humidity": current.get('humidity', 'N/A'),
-                    "wind": current.get('windspeedKmph', 'N/A')
-                }
-            else:
-                flash("Location data structure format not recognized.", "error")
-                
+        geo = fetch_json(geo_url)
+
+        if not geo.get("results"):
+            flash("City not found. Please check the spelling and try again.", "error")
+        else:
+            place = geo["results"][0]
+
+            # Step 2: get the current weather for those coordinates
+            weather_url = (
+                "https://api.open-meteo.com/v1/forecast"
+                f"?latitude={place['latitude']}&longitude={place['longitude']}"
+                "&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code"
+            )
+            current = fetch_json(weather_url)["current"]
+
+            weather_data = {
+                "city": place.get("name", city),
+                "country": place.get("country", ""),
+                "temp": round(current["temperature_2m"]),
+                "desc": WEATHER_CODES.get(current["weather_code"], "Unknown"),
+                "humidity": current["relative_humidity_2m"],
+                "wind": round(current["wind_speed_10m"]),
+            }
+
     except Exception as e:
-        print(f"DEPLOYMENT DIAGNOSTIC ENGINE LOG: {str(e)}")
-        flash("Weather service temporarily unavailable. Please verify the city spelling and try again.", "error")
-        weather_data = None
+        print(f"Weather error: {e}")
+        flash("Weather service temporarily unavailable. Please try again.", "error")
 
     return render_template("weather.html", weather=weather_data)
 @app.route("/privacy")
