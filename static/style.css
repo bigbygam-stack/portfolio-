@@ -151,3 +151,28 @@ a { color: inherit; }
   .hero { padding-top: 4rem; }
   .nav nav a { margin-left: 0.8rem; }
 }
+/* Footer Layout Styles */
+.site-footer {
+    margin-top: 80px;
+    padding: 20px 0;
+    border-top: 1px solid #eaeaea;
+    text-align: center;
+    font-family: sans-serif;
+}
+
+.footer-copyright {
+    font-size: 14px;
+    color: #666666;
+    margin: 0 0 10px 0;
+}
+
+.footer-links a {
+    color: #0070f3;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
+}
