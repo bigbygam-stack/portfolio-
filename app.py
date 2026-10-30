@@ -99,26 +99,36 @@ def messages():
     rows = get_db().execute("SELECT * FROM messages ORDER BY id DESC").fetchall()
     return render_template("messages.html", messages=rows)
 
-
 @app.route("/weather", methods=["GET", "POST"])
 def weather():
     weather_data = None
-    city = "Accra"
+    city = "Accra"  # Default city
     
     if request.method == "POST":
         city = request.form.get("city", "").strip() or "Accra"
         
     try:
-        safe_city = urllib.parse.quote(city)
+        # Securely strip whitespace and encode the text string
+        safe_city = urllib.parse.quote_city = urllib.parse.quote(city.replace(" ", ""))
+        # We explicitly add the json format parameters 
         url = f"https://wttr.in{safe_city}?format=j1"
         
-        req = urllib.request.Request(
-            url, 
-            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
-        )
+        # 🛠️ VERCEL OUTBOUND ROUTING COMPATIBILITY FIX:
+        # Serverless nodes need a comprehensive, explicit set of browser headers 
+        # to avoid hitting service request rate limiting blocks or proxy denials.
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json',
+            'Connection': 'close'
+        }
         
-        with urllib.request.urlopen(req, timeout=8) as response:
-            data = json.loads(response.read().decode('utf-8'))
+        req = urllib.request.Request(url, headers=headers)
+        
+        # Extend the operational timeout parameters window to 10 seconds 
+        with urllib.request.urlopen(req, timeout=10) as response:
+            html = response.read()
+            data = json.loads(html.decode('utf-8'))
+            
             current = data['current_condition'][0]
             nearest = data['nearest_area'][0]
             
@@ -131,11 +141,12 @@ def weather():
                 "wind": current['windspeedKmph']
             }
     except Exception as e:
-        flash("Weather service temporarily unavailable.", "error")
+        # Logs the error string to your Vercel panel so you can see it if it continues
+        print(f"Weather Fetch Error Details: {str(e)}")
+        flash("Weather service temporarily unavailable. Please verify the city spelling and try again.", "error")
         weather_data = None
 
     return render_template("weather.html", weather=weather_data)
-
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html") # <-- The filename must be completely lowercase
