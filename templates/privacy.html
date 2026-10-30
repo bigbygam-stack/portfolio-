@@ -1,41 +1,52 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="privacy-container">
-    <h1 class="privacy-title">PRIVACY POLICY</h1>
-    <p class="privacy-date"><strong>Last updated: October 30, 2026</strong></p>
+<div class="section" style="max-width: 750px;">
+    <h1>PRIVACY POLICY</h1>
+    <p style="color: var(--muted); font-style: italic; margin-bottom: 2.5rem;">Last updated: October 30, 2026</p>
     
-    <div class="privacy-body">
+    <div style="display: grid; gap: 2rem;">
         <p>This privacy notice for this personal portfolio website describes how and why I might collect, store, use, and/or process your information when you visit or interact with the platform, including when you fill out the contact log page form or communicate with integrated software features.</p>
         
-        <h2 class="privacy-heading">1. KEY POINTS SUMMARY</h2>
-        <p><strong>Do I collect sensitive information?</strong> No. This website does not process, request, or handle any sensitive personal identification attributes, healthcare records, or financial information.</p>
-        <p><strong>Do I collect derivative data automatically?</strong> No. This platform runs clean architecture parameters hosted via server environments that do not employ automated logging, behavioral tracking scripts, or marketing cookie pixels.</p>
-        <p><strong>Do I use third-party API services?</strong> Yes. This application connects to public programmatic modules (specifically weather infrastructure data networks) to render live operational elements on designated project dashboards.</p>
+        <div>
+            <h3 style="color: var(--accent); margin-bottom: 0.5rem;">1. KEY POINTS SUMMARY</h3>
+            <p><strong>Do I collect sensitive information?</strong> No. This website does not process, request, or handle any sensitive personal identification attributes, healthcare records, or financial information.</p>
+            <p><strong>Do I collect derivative data automatically?</strong> No. This platform runs clean architecture parameters hosted via server environments that do not employ automated logging, behavioral tracking scripts, or marketing cookie pixels.</p>
+            <p><strong>Do I use third-party API services?</strong> Yes. This application connects to public programmatic modules (specifically weather infrastructure data networks) to render live operational elements on designated project dashboards.</p>
+        </div>
 
-        <h2 class="privacy-heading">2. INFORMATION I COLLECT</h2>
-        <p>I collect personal information that you voluntarily choose to provide when filling out the communications layout fields on this website. The specific metrics are limited to:</p>
-        <ul>
-            <li><strong>Names:</strong> Provided voluntarily to identify the source of incoming correspondence.</li>
-            <li><strong>Email Addresses:</strong> Provided voluntarily to enable direct response channels.</li>
-            <li><strong>Message Contents:</strong> The text logs and open-ended text strings typed into the message box fields.</li>
-        </ul>
+        <div>
+            <h3 style="color: var(--accent); margin-bottom: 0.5rem;">2. INFORMATION I COLLECT</h3>
+            <p>I collect personal information that you voluntarily choose to provide when filling out the communications layout fields on this website. The specific metrics are limited to:</p>
+            <ul style="padding-left: 1.25rem; color: var(--text);">
+                <li style="margin-bottom: 0.5rem;"><strong>Names:</strong> Provided voluntarily to identify the source of incoming correspondence.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Email Addresses:</strong> Provided voluntarily to enable direct response channels.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Message Contents:</strong> The text logs and open-ended text strings typed into the message box fields.</li>
+            </ul>
+        </div>
 
-        <h2 class="privacy-heading">3. INTEGRATED ARTIFICIAL INTELLIGENCE CAPABILITIES</h2>
-        <p>This website incorporates custom Artificial Intelligence features built upon the Anthropic platform execution architecture. These features function exclusively as a static <strong>AI search infrastructure tool</strong>.</p>
-        <p>The AI system operates strictly under the following parameters:</p>
-        <ul>
-            <li>It processes conversational text prompts to query pre-fed professional resume skills, project listings, and historical documentation facts.</li>
-            <li>It is designed exclusively for user assistance and portfolio search layout navigation.</li>
-            <li>It does not track individual user identities, compile demographic analytics, generate profiling insights, or share context arrays with marketing platforms.</li>
-        </ul>
+        <div>
+            <h3 style="color: var(--accent); margin-bottom: 0.5rem;">3. INTEGRATED ARTIFICIAL INTELLIGENCE CAPABILITIES</h3>
+            <p>This website incorporates custom Artificial Intelligence features built upon the Anthropic platform execution architecture. These features function exclusively as a static <strong>AI search infrastructure tool</strong>.</p>
+            <ul style="padding-left: 1.25rem; color: var(--text);">
+                <li style="margin-bottom: 0.5rem;">It processes conversational text prompts to query pre-fed professional resume skills, project listings, and historical documentation facts.</li>
+                <li style="margin-bottom: 0.5rem;">It is designed exclusively for user assistance and portfolio search layout navigation.</li>
+                <li style="margin-bottom: 0.5rem;">It does not track individual user identities, compile demographic analytics, generate profiling insights, or share context arrays with marketing platforms.</li>
+            </ul>
+        </div>
 
-        <h2 class="privacy-heading">4. HOW I PROCESS YOUR INFORMATION</h2>
-        <p>I process your contact information exclusively to manage and respond to incoming digital messages, ensure input security boundaries, and display conversational search arrays within the application's environment layout.</p>
+        <div>
+            <h3 style="color: var(--accent); margin-bottom: 0.5rem;">4. HOW I PROCESS YOUR INFORMATION</h3>
+            <p>I process your contact information exclusively to manage and respond to incoming digital messages, ensure input security boundaries, and display conversational search arrays within the application's environment layout.</p>
+        </div>
 
-        <h2 data-custom-class="heading_1">5. DATA RIGHTS AND TRANSFERS</h2>
-        <p>Your data stays completely safe within my operational environment and is never sold or distributed. Because this project is hosted globally on Vercel infrastructure, information is processed via secure cloud parameters. In accordance with data guidelines, you preserve absolute authority to request the absolute removal of your message logs from the active database by submitting a deletion request.</p>
+        <div>
+            <h3 style="color: var(--accent); margin-bottom: 0.5rem;">5. DATA RIGHTS AND TRANSFERS</h3>
+            <p>Your data stays completely safe within my operational environment and is never sold or distributed. Because this project is hosted globally on Vercel infrastructure, information is processed via secure cloud parameters. In accordance with data guidelines, you preserve absolute authority to request the absolute removal of your message logs from the active database by submitting a deletion request.</p>
+        </div>
     </div>
 
-    <p class="privacy-back-link"><a href="/">&larr; Return to Homepage Layout</a></p>
+    <p style="margin-top: 4rem;">
+        <a href="/" class="link">&larr; Return to Homepage Layout</a>
+    </p>
 </div>
 {% endblock %}
