@@ -136,6 +136,11 @@ def weather():
 
     return render_template("weather.html", weather=weather_data)
 
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html") # <-- The filename must be completely lowercase
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
