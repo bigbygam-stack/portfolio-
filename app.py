@@ -102,47 +102,45 @@ def messages():
 @app.route("/weather", methods=["GET", "POST"])
 def weather():
     weather_data = None
-    city = "Accra"  # Default city
+    city = "Accra"
     
     if request.method == "POST":
         city = request.form.get("city", "").strip() or "Accra"
         
     try:
-        # Securely strip whitespace and encode the text string
-        safe_city = urllib.parse.quote_city = urllib.parse.quote(city.replace(" ", ""))
-        # We explicitly add the json format parameters 
+        # Clear out extreme spaces and map the parameters safely
+        safe_city = urllib.parse.quote(city.strip())
         url = f"https://wttr.in{safe_city}?format=j1"
         
-        # 🛠️ VERCEL OUTBOUND ROUTING COMPATIBILITY FIX:
-        # Serverless nodes need a comprehensive, explicit set of browser headers 
-        # to avoid hitting service request rate limiting blocks or proxy denials.
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'application/json',
-            'Connection': 'close'
-        }
+        req = urllib.request.Request(
+            url, 
+            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+        )
         
-        req = urllib.request.Request(url, headers=headers)
-        
-        # Extend the operational timeout parameters window to 10 seconds 
         with urllib.request.urlopen(req, timeout=10) as response:
-            html = response.read()
-            data = json.loads(html.decode('utf-8'))
+            raw_json = response.read().decode('utf-8')
+            data = json.loads(raw_json)
             
-            current = data['current_condition'][0]
-            nearest = data['nearest_area'][0]
-            
-            weather_data = {
-                "city": nearest['areaName'][0]['value'],
-                "country": nearest['country'][0]['value'],
-                "temp": current['temp_C'],
-                "desc": current['weatherDesc'][0]['value'],
-                "humidity": current['humidity'],
-                "wind": current['windspeedKmph']
-            }
+            # Defensive checks to ensure arrays exist
+            if 'current_condition' in data and 'nearest_area' in data:
+                current = data['current_condition'][0]
+                nearest = data['nearest_area'][0]
+                
+                # Safely extract dictionary keys with fallback defaults
+                weather_data = {
+                    "city": nearest.get('areaName', [{}])[0].get('value', city),
+                    "country": nearest.get('country', [{}])[0].get('value', ''),
+                    "temp": current.get('temp_C', 'N/A'),
+                    "desc": current.get('weatherDesc', [{}])[0].get('value', 'Unknown'),
+                    "humidity": current.get('humidity', 'N/A'),
+                    "wind": current.get('windspeedKmph', 'N/A')
+                }
+            else:
+                flash("Location data structure format not recognized.", "error")
+                
     except Exception as e:
-        # Logs the error string to your Vercel panel so you can see it if it continues
-        print(f"Weather Fetch Error Details: {str(e)}")
+        # This print writes the exact raw error into your Vercel server dashboard logs!
+        print(f"DEPLOYMENT DIAGNOSTIC ENGINE LOG: {str(e)}")
         flash("Weather service temporarily unavailable. Please verify the city spelling and try again.", "error")
         weather_data = None
 
