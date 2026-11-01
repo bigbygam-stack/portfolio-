@@ -1,52 +1,46 @@
 {% extends "base.html" %}
+{% block title %}Privacy Policy{% endblock %}
 {% block content %}
-<div class="section" style="max-width: 750px;">
-    <h1>PRIVACY POLICY</h1>
-    <p style="color: var(--muted); font-style: italic; margin-bottom: 2.5rem;">Last updated: October 30, 2026</p>
-    
-    <div style="display: grid; gap: 2rem;">
-        <p>This privacy notice for this personal portfolio website describes how and why I might collect, store, use, and/or process your information when you visit or interact with the platform, including when you fill out the contact log page form or communicate with integrated software features.</p>
-        
-        <div>
-            <h3 style="color: var(--accent); margin-bottom: 0.5rem;">1. KEY POINTS SUMMARY</h3>
-            <p><strong>Do I collect sensitive information?</strong> No. This website does not process, request, or handle any sensitive personal identification attributes, healthcare records, or financial information.</p>
-            <p><strong>Do I collect derivative data automatically?</strong> No. This platform runs clean architecture parameters hosted via server environments that do not employ automated logging, behavioral tracking scripts, or marketing cookie pixels.</p>
-            <p><strong>Do I use third-party API services?</strong> Yes. This application connects to public programmatic modules (specifically weather infrastructure data networks) to render live operational elements on designated project dashboards.</p>
-        </div>
+<div class="section">
+    <h1>Privacy Policy</h1>
+    <p><em>Last updated: November 1, 2026</em></p>
 
-        <div>
-            <h3 style="color: var(--accent); margin-bottom: 0.5rem;">2. INFORMATION I COLLECT</h3>
-            <p>I collect personal information that you voluntarily choose to provide when filling out the communications layout fields on this website. The specific metrics are limited to:</p>
-            <ul style="padding-left: 1.25rem; color: var(--text);">
-                <li style="margin-bottom: 0.5rem;"><strong>Names:</strong> Provided voluntarily to identify the source of incoming correspondence.</li>
-                <li style="margin-bottom: 0.5rem;"><strong>Email Addresses:</strong> Provided voluntarily to enable direct response channels.</li>
-                <li style="margin-bottom: 0.5rem;"><strong>Message Contents:</strong> The text logs and open-ended text strings typed into the message box fields.</li>
-            </ul>
-        </div>
+    <p>This is the personal portfolio website of Gamir Bigby. This page explains what information the site collects, why, and who else handles it.</p>
 
-        <div>
-            <h3 style="color: var(--accent); margin-bottom: 0.5rem;">3. INTEGRATED ARTIFICIAL INTELLIGENCE CAPABILITIES</h3>
-            <p>This website incorporates custom Artificial Intelligence features built upon the Anthropic platform execution architecture. These features function exclusively as a static <strong>AI search infrastructure tool</strong>.</p>
-            <ul style="padding-left: 1.25rem; color: var(--text);">
-                <li style="margin-bottom: 0.5rem;">It processes conversational text prompts to query pre-fed professional resume skills, project listings, and historical documentation facts.</li>
-                <li style="margin-bottom: 0.5rem;">It is designed exclusively for user assistance and portfolio search layout navigation.</li>
-                <li style="margin-bottom: 0.5rem;">It does not track individual user identities, compile demographic analytics, generate profiling insights, or share context arrays with marketing platforms.</li>
-            </ul>
-        </div>
+    <h3>1. What I collect</h3>
+    <p><strong>Contact form.</strong> If you send a message, I collect the name, email address and message you type, plus the date and time you sent it.</p>
+    <p><strong>Weather page.</strong> The city you search for is sent to Open-Meteo, a public weather service, to look up the weather. My site does not save the cities you search for.</p>
+    <p><strong>Hosting logs.</strong> My hosting provider, Vercel, may automatically record standard technical information about visits, such as IP address, browser type and the pages requested. I don't use this to track individual visitors.</p>
 
-        <div>
-            <h3 style="color: var(--accent); margin-bottom: 0.5rem;">4. HOW I PROCESS YOUR INFORMATION</h3>
-            <p>I process your contact information exclusively to manage and respond to incoming digital messages, ensure input security boundaries, and display conversational search arrays within the application's environment layout.</p>
-        </div>
+    <h3>2. Cookies</h3>
+    <p>The site uses a small, temporary cookie to show a confirmation or error notice after you submit a form. It is not used for tracking. I don't use advertising or analytics trackers.</p>
 
-        <div>
-            <h3 style="color: var(--accent); margin-bottom: 0.5rem;">5. DATA RIGHTS AND TRANSFERS</h3>
-            <p>Your data stays completely safe within my operational environment and is never sold or distributed. Because this project is hosted globally on Vercel infrastructure, information is processed via secure cloud parameters. In accordance with data guidelines, you preserve absolute authority to request the absolute removal of your message logs from the active database by submitting a deletion request.</p>
-        </div>
-    </div>
+    <h3>3. How I use your information</h3>
+    <p>I use contact form details only to read and reply to your message. I don't sell your information or use it for marketing.</p>
 
-    <p style="margin-top: 4rem;">
-        <a href="/" class="link">&larr; Return to Homepage</a>
-    </p>
+    <h3>4. Who else handles it</h3>
+    <ul>
+        <li><strong>Vercel</strong> hosts the website.</li>
+        <li><strong>Neon</strong> hosts the database where contact messages are stored.</li>
+        <li><strong>Open-Meteo</strong> receives the city names searched on the weather page.</li>
+    </ul>
+    <p>These services have their own privacy policies. I may also share information if the law requires it.</p>
+
+    <h3>5. How long I keep it</h3>
+    <p>I keep messages for as long as I need them to respond, and I may delete them afterwards. You can ask me to delete yours at any time.</p>
+
+    <h3>6. Your choices</h3>
+    <p>To ask what I hold about you, or to have it deleted, email me at <strong>YOUR_EMAIL@example.com</strong>. I will respond as soon as I reasonably can.</p>
+
+    <h3>7. Security</h3>
+    <p>I take reasonable steps to protect your information, including using HTTPS and keeping my database private. No website can guarantee perfect security, so please don't send sensitive information through the contact form.</p>
+
+    <h3>8. Children</h3>
+    <p>This site isn't aimed at children, and I don't knowingly collect their information.</p>
+
+    <h3>9. Changes</h3>
+    <p>If I change how the site works, I will update this page and the date at the top.</p>
+
+    <p><a href="/" class="link">&larr; Return to Homepage</a></p>
 </div>
 {% endblock %}
